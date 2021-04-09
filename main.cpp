@@ -10,6 +10,7 @@ const int BOARD_SIZE = 9;
 const vector<char> sudoku_nums_char = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 const vector<int> sudoku_nums_int = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
+
 class Box {
 
     public:
@@ -29,6 +30,18 @@ class Box {
             cout << "Value: " << value << endl;
         }
 
+        void remove_existing_vals(const vector<char> &values, vector<char> &valid_nums) {
+
+            for(char num : values) {
+                for(int i = 0; i < valid_nums.size(); i++) {
+
+                    if(num == valid_nums[i]) {
+                        valid_nums.erase(valid_nums.begin() + i);
+                    }
+                }
+            }
+        }
+
         void create_possible_vals(const vector<char> &horizontal_vals, const vector<char> &vertical_vals, const vector<char> &table_vals) {
             
             vector<char> valid_nums = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
@@ -41,17 +54,49 @@ class Box {
         }
 };
 
-vector<char> remove_existing_vals(const vector<char> &values, vector<char> &valid_nums) {
 
-    for(char num : values) {
-        for(int i = 0; i < valid_nums.size(); i++) {
+void evaluator(const vector<Box> &all_boxes, vector<vector<char>> &table_vals, int row, int j) {
 
-            if(num == valid_nums[i]) {
-                valid_nums.erase(valid_nums.begin() + i);
-            }
+    int less_than;
+    int more_than;
+    int table_vals_column_start;
+
+    if(row == 1) {
+        more_than = -1;
+        table_vals_column_start = 0;
+    }
+
+    else if(row == 2) {
+        more_than = 2;
+        table_vals_column_start = 3;
+    }
+
+    else if(row == 3) {
+        more_than = 5;
+        table_vals_column_start = 6;
+    }
+
+    else {
+        throw "'int row' in function 'evaluator' can only be 1, 2, or 3. ";
+    }
+
+    less_than = more_than + 3;
+
+    if(all_boxes[j].pos[0] > more_than && all_boxes[j].pos[0] <= less_than) {
+        if(all_boxes[j].pos[1] <= 2) {
+            table_vals[table_vals_column_start].push_back(all_boxes[j].value);
+        }
+
+        else if(all_boxes[j].pos[1] > 2 && all_boxes[j].pos[1] <= 5) {
+            table_vals[table_vals_column_start + 1].push_back(all_boxes[j].value);
+        }
+
+        else if(all_boxes[j].pos[1] > 5 && all_boxes[j].pos[1] <= 8) {
+            table_vals[table_vals_column_start + 2].push_back(all_boxes[j].value);
         }
     }
-} 
+}
+
 
 int main() {
 
@@ -96,6 +141,16 @@ int main() {
             if(all_boxes[j].pos[1] == i && all_boxes[j].value != 'x') {
                 vertical_existing_vals[i].push_back(all_boxes[j].value);
             }
+        }
+    }
+
+    for(int j = 0; j < all_boxes.size(); j++) {
+
+        if(all_boxes[j].value != 'x') {
+
+            evaluator(all_boxes, table_existing_vals, 1, j);
+            evaluator(all_boxes, table_existing_vals, 2, j);
+            evaluator(all_boxes, table_existing_vals, 3, j);
         }
     }
 
