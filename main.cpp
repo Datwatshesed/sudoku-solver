@@ -6,11 +6,15 @@
 
 using namespace std;
 
+const int BOARD_SIZE = 9;
+const vector<char> sudoku_nums_char = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
+const vector<int> sudoku_nums_int = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+
 class Box {
 
     public:
         vector<int> pos;
-        vector<int> possible_vals;
+        vector<char> possible_vals;
         char value;
 
         Box(vector<int> pos, char value) {
@@ -25,14 +29,31 @@ class Box {
             cout << "Value: " << value << endl;
         }
 
-        void create_possible_vals(vector<char> horizontal_vals, vector<char> vertical_vals, vector<char> table_vals) {
-            vector<int> possible_nums = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        void create_possible_vals(const vector<char> &horizontal_vals, const vector<char> &vertical_vals, const vector<char> &table_vals) {
+            
+            vector<char> valid_nums = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
+
+            remove_existing_vals(horizontal_vals, valid_nums);
+
+            remove_existing_vals(vertical_vals, valid_nums);
+
+            remove_existing_vals(table_vals, valid_nums);
         }
 };
 
-int main() {
+vector<char> remove_existing_vals(const vector<char> &values, vector<char> &valid_nums) {
 
-    const int BOARD_SIZE = 9;
+    for(char num : values) {
+        for(int i = 0; i < valid_nums.size(); i++) {
+
+            if(num == valid_nums[i]) {
+                valid_nums.erase(valid_nums.begin() + i);
+            }
+        }
+    }
+} 
+
+int main() {
 
     ofstream write_file;
     ifstream read_file;
@@ -60,7 +81,6 @@ int main() {
     vector<vector<char>> table_existing_vals;
 
     for(int i = 0; i < BOARD_SIZE; i++) {
-        // vector<int> values;
         horizontal_existing_vals.push_back(vector<char>());
         vertical_existing_vals.push_back(vector<char>());
         table_existing_vals.push_back(vector<char>());
